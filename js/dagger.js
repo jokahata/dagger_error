@@ -34,55 +34,65 @@ function processErrorLog() {
 
             if (isClassLine(line)) {
                 messageChunk = appendParagraph(messageChunk, line); 
+
+                // If also an error line
+                if (isErrorLine(line) && isValidError(line) && !line.includes("cannot find symbol")) {
+                    messageChunk = appendError(messageChunk, line);
+                    outputMessage += messageChunk;
+                }
             }
             continue;
         } else if (isErrorLine(line)) {
-            if (line.includes("cannot find symbol class") || line.includes("does not exist")) {
-                    // Trash error
-                    continue;
-                } else {
+            if (isValidError(line)) {
                     // Valid error
                     messageChunk = appendError(messageChunk, line);
                     shouldSaveChunk = true;
-                }
             }
+                    // Trash error
+                    continue;
         }
-
-        printOutput(outputMessage);
     }
 
-    function isInformationLine(line) {
-        return line.startsWith("Information:")
-    }
 
-    function isWarningLine(line) {
-        return line.startsWith("Warning")
-    }
+    printOutput(outputMessage);
+}
 
-    function isClassLine(line) {
-        return line.endsWith(".java");
-    }
+function isInformationLine(line) {
+    return line.startsWith("Information:")
+}
 
-    function isErrorLine(line) {
-        return line.includes("Error");
-    }
+function isWarningLine(line) {
+    return line.startsWith("Warning")
+}
 
-    function printOutput(outputMessage) {
-        var outputLines = $('#errorfound');
-        outputLines.append(outputMessage);
-    }
+function isClassLine(line) {
+    return line.includes(".java");
+}
 
-    function clearOutput() {
-        var outputLines = $('#errorfound');
-        outputLines.children().remove();
-    }
+function isValidError(line) {
+    return !(line.includes("cannot find symbol class") || line.includes("does not exist"));
+}
 
-    function appendParagraph(message, toAppend) {
-        message += "<p>" + toAppend + "</p>";
-        return message;
-    }
+function isErrorLine(line) {
+    return line.includes("error:");
+}
 
-    function appendError(message, toAppend) {
-        message += "<p>&nbsp;&nbsp;&nbsp;&nbsp;" + toAppend + "</p>";
-        return message;
-    }
+function printOutput(outputMessage) {
+    var outputLines = $('#errorfound');
+    outputLines.append(outputMessage);
+}
+
+function clearOutput() {
+    var outputLines = $('#errorfound');
+    outputLines.children().remove();
+}
+
+function appendParagraph(message, toAppend) {
+    message += "<p>" + toAppend + "</p>";
+    return message;
+}
+
+function appendError(message, toAppend) {
+    message += "<p>&nbsp;&nbsp;&nbsp;&nbsp;" + toAppend + "</p>";
+    return message;
+}
