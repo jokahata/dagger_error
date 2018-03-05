@@ -8,31 +8,34 @@ $(document).ready(function(){
 });
 
 function processErrorLog() {
-    // false when we are either in logs we don't care about ("warnings")
-    // true once we've found set of errors related to a java class
-    var inClassWithPossibleError = false;
+    // Final message we show to user
     var outputMessage = "";
 
-    // Looking for possible error mode
-    // Not looking for error mode
-
+    // Current chunk of message, like the file an error occurs and the error
     var messageChunk = "";
+
+    // If this chunk contains a valid error, should be true
     var shouldSaveChunk = false;
+    
     var errorLogLines = $('textarea#errorlog').val().split('\n');
     for (var i = 0; i < errorLogLines.length; i++) {
         var line = errorLogLines[i];
 
-        if (inClassWithPossibleError) {
-            // Check if we reach a trash message or another class to end
-            if (isClassLine(line) || isInformationLine(line) || isWarningLine(line)) {
-                if (shouldSaveChunk) {
-                    // Send entire error chunk to buffer
-                    outputMessage += messageChunk;
-                    messageChunk = "";
-                    shouldSaveChunk = false;
-                }
-               continue;
-            } else {
+        if (isClassLine(line) || isInformationLine(line) || isWarningLine(line)) {
+            if (shouldSaveChunk) {
+                // Send entire error chunk to buffer
+                messageChunk += "<hr/>"
+                outputMessage += messageChunk;
+            }
+
+            messageChunk = "";
+            shouldSaveChunk = false;
+
+            if (isClassLine(line)) {
+                messageChunk = appendParagraph(messageChunk, line); 
+            }
+            continue;
+        } else if (isErrorLine(line)) {
                 if (line.includes("cannot find symbol class") || line.includes("does not exist")) {
                     // Trash error
                     continue;
@@ -41,17 +44,7 @@ function processErrorLog() {
                     messageChunk = appendError(messageChunk, line);
                     shouldSaveChunk = true;
                 }
-            }
         }
-
-        if (isWarningLine(line)) {
-            continue;
-        }
-
-        if (isClassLine(line)) {
-            inClassWithPossibleError = true;
-        }
-        outputMessage = appendParagraph(outputMessage, line);
     }
 
     printOutput(outputMessage);
@@ -67,6 +60,10 @@ function isWarningLine(line) {
 
 function isClassLine(line) {
     return line.endsWith(".java");
+}
+
+function isErrorLine(line) {
+    return line.includes("Error");
 }
 
 function printOutput(outputMessage) {
@@ -85,6 +82,6 @@ function appendParagraph(message, toAppend) {
 }
 
 function appendError(message, toAppend) {
-    message += "<p>\t" + toAppend + "</p>";
+    message += "<p>&nbsp;&nbsp;&nbsp;&nbsp;" + toAppend + "</p>";
     return message;
 }
