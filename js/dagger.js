@@ -9,15 +9,27 @@ $(document).ready(function(){
 
 function processErrorLog() {
     var errorLogLines = $('textarea#errorlog').val().split('\n');
-    var outputLines = $('#errorfound');
+    var inFileError = false;
+    var outputMessage = "";
+
     for (var i = 0; i < errorLogLines.length; i++) {
         var line = errorLogLines[i];
         if (line.includes("Warning")) {
             continue;
         }
 
-        appendParagraph(outputLines, line);
+        if (line.endsWith(".java")) {
+            inFileError = true;
+        }
+        outputMessage = appendParagraph(outputMessage, line);
     }
+
+    printOutput(outputMessage);
+}
+
+function printOutput(outputMessage) {
+    var outputLines = $('#errorfound');
+    outputLines.append(outputMessage);
 }
 
 function clearOutput() {
@@ -25,6 +37,7 @@ function clearOutput() {
     outputLines.children().remove();
 }
 
-function appendParagraph(parent, toAppend) {
-    parent.append("<p>" + toAppend + "</p>");
+function appendParagraph(message, toAppend) {
+    message += "<p>" + toAppend + "</p>";
+    return message;
 }
