@@ -16,11 +16,12 @@ function processErrorLog() {
 
     // If this chunk contains a valid error, should be true
     var shouldSaveChunk = false;
-    
+
     var errorLogLines = $('textarea#errorlog').val().split('\n');
     for (var i = 0; i < errorLogLines.length; i++) {
         var line = errorLogLines[i];
 
+        // Is not an error line
         if (isClassLine(line) || isInformationLine(line) || isWarningLine(line)) {
             if (shouldSaveChunk) {
                 // Send entire error chunk to buffer
@@ -36,7 +37,7 @@ function processErrorLog() {
             }
             continue;
         } else if (isErrorLine(line)) {
-                if (line.includes("cannot find symbol class") || line.includes("does not exist")) {
+            if (line.includes("cannot find symbol class") || line.includes("does not exist")) {
                     // Trash error
                     continue;
                 } else {
@@ -44,44 +45,44 @@ function processErrorLog() {
                     messageChunk = appendError(messageChunk, line);
                     shouldSaveChunk = true;
                 }
+            }
         }
+
+        printOutput(outputMessage);
     }
 
-    printOutput(outputMessage);
-}
+    function isInformationLine(line) {
+        return line.startsWith("Information:")
+    }
 
-function isInformationLine(line) {
-    return line.startsWith("Information:")
-}
+    function isWarningLine(line) {
+        return line.startsWith("Warning")
+    }
 
-function isWarningLine(line) {
-    return line.startsWith("Warning")
-}
+    function isClassLine(line) {
+        return line.endsWith(".java");
+    }
 
-function isClassLine(line) {
-    return line.endsWith(".java");
-}
+    function isErrorLine(line) {
+        return line.includes("Error");
+    }
 
-function isErrorLine(line) {
-    return line.includes("Error");
-}
+    function printOutput(outputMessage) {
+        var outputLines = $('#errorfound');
+        outputLines.append(outputMessage);
+    }
 
-function printOutput(outputMessage) {
-    var outputLines = $('#errorfound');
-    outputLines.append(outputMessage);
-}
+    function clearOutput() {
+        var outputLines = $('#errorfound');
+        outputLines.children().remove();
+    }
 
-function clearOutput() {
-    var outputLines = $('#errorfound');
-    outputLines.children().remove();
-}
+    function appendParagraph(message, toAppend) {
+        message += "<p>" + toAppend + "</p>";
+        return message;
+    }
 
-function appendParagraph(message, toAppend) {
-    message += "<p>" + toAppend + "</p>";
-    return message;
-}
-
-function appendError(message, toAppend) {
-    message += "<p>&nbsp;&nbsp;&nbsp;&nbsp;" + toAppend + "</p>";
-    return message;
-}
+    function appendError(message, toAppend) {
+        message += "<p>&nbsp;&nbsp;&nbsp;&nbsp;" + toAppend + "</p>";
+        return message;
+    }
