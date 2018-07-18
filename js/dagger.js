@@ -5,6 +5,11 @@ $(document).ready(function(){
             processErrorLog();
         }
     });
+
+    $('#finderrorbutton').click(function(){
+            clearOutput();
+            processErrorLog();
+    });
 });
 
 function processErrorLog() {
@@ -79,11 +84,16 @@ function isErrorLine(line) {
 
 function printOutput(outputMessage) {
     var outputLines = $('#errorfound');
-    outputLines.append(outputMessage);
+    if (outputMessage === "") {
+        outputLines.append(appendParagraph("", "No Errors Found"));
+    } else {
+        outputLines.append(outputMessage);
+    }
 }
 
 function clearOutput() {
     var outputLines = $('#errorfound');
+    outputLines.innerHtml = "";
     outputLines.children().remove();
 }
 
